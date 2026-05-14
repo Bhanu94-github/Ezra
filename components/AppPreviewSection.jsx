@@ -14,20 +14,20 @@ function Dashboard() {
     { initials: 'AN', name: 'Anita Nair', role: 'Carpenter', rating: 4.7, dist: '1.8 km', hue: '#201525', accent: '#fb7185' },
   ];
   return (
-    <div className="flex flex-col lg:flex-row overflow-hidden shadow-2xl rounded-[16px] md:rounded-[24px] w-full" style={{ minHeight: 600, background: '#060610' }}>
+    <div className="flex flex-col lg:flex-row overflow-hidden shadow-2xl rounded-[16px] md:rounded-[24px] w-full mx-auto" style={{ minHeight: 600, background: '#060610' }}>
       <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
       {/* sidebar */}
-      <div className="lg:w-[240px] shrink-0 flex flex-col gap-3 p-4 md:p-6 lg:p-10" style={{ background: '#040408', borderRight: '1px solid rgba(255,255,255,0.04)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8, paddingLeft: 4 }}>
+      <div className="lg:w-[240px] w-full shrink-0 flex flex-col gap-3 p-4 md:p-6 lg:p-10" style={{ background: '#040408', borderRight: '1px solid rgba(255,255,255,0.04)' }}>
+        <div className="flex items-center gap-3 mb-2 lg:mb-8 pl-1">
           <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,#6366f1,#818cf8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" /></svg>
           </div>
-          <span style={{ color: '#fff', fontWeight: 700, fontSize: 16 }}>Ezra</span>
+          <span className="text-white font-bold text-lg">Ezra</span>
         </div>
-        <div className="flex flex-row overflow-x-auto lg:flex-col gap-2 pb-1 lg:pb-0 hide-scrollbar -mx-1 px-1 lg:mx-0 lg:px-0">
+        <div className="flex flex-row overflow-x-auto lg:flex-col gap-2 pb-1 lg:pb-0 hide-scrollbar lg:mx-0">
           {[{ l: 'Dashboard', a: true }, { l: 'Workers', a: false }, { l: 'Bookings', a: false }, { l: 'Map', a: false }, { l: 'Reviews', a: false }, { l: 'Settings', a: false }].map(n => (
-            <div key={n.l} className="shrink-0" style={{
-              padding: '8px 14px', borderRadius: 10, fontSize: 13, fontWeight: n.a ? 600 : 500, cursor: 'pointer',
+            <div key={n.l} className="shrink-0 px-4 py-2" style={{
+              borderRadius: 10, fontSize: 13, fontWeight: n.a ? 600 : 500, cursor: 'pointer',
               background: n.a ? 'rgba(99,102,241,0.15)' : 'transparent', color: n.a ? '#818cf8' : '#71717a',
               transition: 'background 0.2s',
             }}>{n.l}</div>
@@ -35,47 +35,51 @@ function Dashboard() {
         </div>
       </div>
       {/* main */}
-      <div className="flex-1 flex flex-col gap-5 p-4 md:p-6 lg:p-10" style={{ overflow: 'hidden', background: '#0a0a14' }}>
-        <div className="flex flex-row justify-between items-center gap-4">
+      <div className="flex-1 w-full flex flex-col gap-5 p-4 md:p-6 lg:p-10" style={{ overflow: 'hidden', background: '#0a0a14' }}>
+        <div className="flex flex-row justify-between items-center w-full">
           <div>
-            <p style={{ color: '#f4f4f5', fontWeight: 800 }} className="text-lg md:text-2xl">Good morning, Admin</p>
-            <p style={{ color: '#71717a', marginTop: 2 }} className="text-[11px] md:text-sm">Mumbai • 24 workers online</p>
+            <p className="text-white font-extrabold text-lg md:text-2xl leading-tight">Good morning, Admin</p>
+            <p className="text-zinc-500 text-[11px] md:text-sm mt-1">Mumbai • 24 workers online</p>
           </div>
-          <div className="hidden sm:flex" style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 20, padding: '6px 12px', color: '#818cf8', fontSize: 12, fontWeight: 600, alignItems: 'center', gap: 8 }}>
-            <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#34d399', display: 'inline-block' }} />
-            Live System Status
+          <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 text-xs font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            Live Status
           </div>
         </div>
         
         {/* compact grid for stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 w-full">
           {stats.map((s, i) => (
-            <div key={i} className={`p-4 lg:p-6 ${i === 2 ? 'col-span-2 lg:col-span-1' : ''}`} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16 }}>
-              <p style={{ color: '#71717a', fontSize: 10, fontWeight: 700, letterSpacing: .5, textTransform: 'uppercase', marginBottom: 4 }}>{s.label}</p>
-              <p style={{ color: '#f4f4f5', fontWeight: 800, fontFamily: "'Space Grotesk',sans-serif", lineHeight: 1 }} className="text-2xl md:text-[28px] lg:text-[32px]">{s.value}</p>
-              <p style={{ color: s.color, fontSize: 11, marginTop: 6, fontWeight: 600 }}>↑ {s.delta} this week</p>
+            <div key={i} className={`p-4 lg:p-6 rounded-2xl border border-white/5 bg-white/[0.03] ${i === 2 ? 'col-span-2 lg:col-span-1' : ''}`}>
+              <p className="text-zinc-500 text-[10px] font-bold tracking-wider uppercase mb-1">{s.label}</p>
+              <p className="text-white font-extrabold text-2xl md:text-3xl font-space leading-none">{s.value}</p>
+              <p style={{ color: s.color }} className="text-[11px] font-semibold mt-2">↑ {s.delta}</p>
             </div>
           ))}
         </div>
 
-        <div className="p-3 md:p-6 lg:p-8" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16, flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 12, padding: '0 4px' }}>
-            <p style={{ color: '#f4f4f5', fontWeight: 700, fontSize: 15 }}>Nearby Workers</p>
-            <p style={{ color: '#818cf8', fontSize: 12, fontWeight: 600, cursor: 'pointer' }}>View all →</p>
+        <div className="flex-1 w-full flex flex-col p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden">
+          <div className="flex justify-between items-center mb-4">
+            <p className="text-white font-bold text-base">Nearby Workers</p>
+            <p className="text-indigo-400 text-xs font-semibold cursor-pointer hover:underline">View all →</p>
           </div>
-          <div className="flex flex-col gap-2 flex-1 overflow-y-auto pr-1 pb-2 hide-scrollbar">
+          <div className="flex flex-col gap-2 flex-1 overflow-y-auto pr-1 hide-scrollbar">
             {workers.map((w, i) => (
-              <div key={i} className="flex flex-row items-center justify-between gap-3 p-3 md:p-4" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12 }}>
+              <div key={i} className="flex flex-row items-center justify-between gap-3 p-3 rounded-xl border border-white/5 bg-white/[0.03]">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div style={{ width: 36, height: 36, borderRadius: 10, background: w.hue, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 13, fontWeight: 800, color: w.accent, flexShrink: 0 }}>{w.initials}</div>
-                  <div className="min-w-0 flex-1 truncate">
-                    <p style={{ color: '#f4f4f5', fontSize: 14, fontWeight: 600 }} className="truncate">{w.name}</p>
-                    <p style={{ color: '#71717a', fontSize: 11, marginTop: 1 }} className="truncate">{w.role} • {w.dist}</p>
+                  <div style={{ background: w.hue, color: w.accent }} className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-black flex-shrink-0">
+                    {w.initials}
+                  </div>
+                  <div className="min-w-0 truncate">
+                    <p className="text-white text-sm font-semibold truncate">{w.name}</p>
+                    <p className="text-zinc-500 text-[11px] mt-0.5 truncate">{w.role} • {w.dist}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 flex-shrink-0">
-                  <p className="hidden sm:block" style={{ color: '#fbbf24', fontSize: 12, fontWeight: 700, whiteSpace: 'nowrap' }}>★ {w.rating}</p>
-                  <div style={{ background: 'linear-gradient(135deg,#6366f1,#818cf8)', borderRadius: 8, padding: '6px 14px', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>Book</div>
+                  <p className="hidden sm:block text-amber-400 text-xs font-bold">★ {w.rating}</p>
+                  <div className="px-4 py-1.5 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 text-white text-xs font-bold cursor-pointer hover:opacity-90 transition-opacity">
+                    Book
+                  </div>
                 </div>
               </div>
             ))}
@@ -88,10 +92,10 @@ function Dashboard() {
 
 export default function AppPreviewSection() {
   return (
-    <section id="app-preview" style={{ background: 'linear-gradient(180deg, #000, #040408)', position: 'relative', overflow: 'hidden', padding: '100px 5%' }}>
+    <section id="app-preview" className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8" style={{ background: 'linear-gradient(180deg, #000, #040408)' }}>
       <div style={{ position: 'absolute', top: '-10%', left: '20%', width: 600, height: 400, background: 'radial-gradient(ellipse, rgba(99,102,241,0.03), transparent 70%)', pointerEvents: 'none', filter: 'blur(60px)' }} />
 
-      <div style={{ maxWidth: 1200, margin: '0 auto', textAlign: 'center', marginBottom: 60 }}>
+      <div className="max-w-7xl mx-auto text-center mb-16">
         <motion.span initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="pill" style={{ display: 'inline-flex', marginBottom: 20 }}>
           🚀 The Full Platform
         </motion.span>
@@ -113,14 +117,14 @@ export default function AppPreviewSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.7, delay: 0.3 }}
-        className="w-full"
-        style={{ maxWidth: 1100, margin: '0 auto 80px', borderRadius: 24, padding: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
+        className="mx-auto w-full max-w-[1100px] mb-20"
+        style={{ borderRadius: 24, padding: 'clamp(4px, 1vw, 8px)', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
       >
         <Dashboard />
       </motion.div>
 
       {/* feature cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10" style={{ maxWidth: 1100, margin: '0 auto' }}>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 max-w-[1100px] mx-auto">
         {[
           { h: 'Instant Booking', p: 'Book a worker in under 60 seconds.', c: '#818cf8' },
           { h: 'Verified Workers', p: 'Every worker passes background checks.', c: '#34d399' },
