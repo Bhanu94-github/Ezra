@@ -1,5 +1,4 @@
 'use client';
-import { ContainerScroll } from '@/components/ui/container-scroll-animation';
 import { motion } from 'framer-motion';
 
 function Dashboard() {
@@ -15,19 +14,19 @@ function Dashboard() {
     { initials: 'AN', name: 'Anita Nair', role: 'Carpenter', rating: 4.7, dist: '1.8 km', hue: '#201525', accent: '#fb7185' },
   ];
   return (
-    <div className="flex flex-col lg:flex-row overflow-hidden shadow-2xl rounded-[24px]" style={{ height: '100%', minHeight: 600, background: '#060610' }}>
+    <div className="flex flex-col lg:flex-row overflow-hidden shadow-2xl rounded-[20px] md:rounded-[24px] w-full" style={{ minHeight: 600, background: '#060610' }}>
       {/* sidebar */}
-      <div className="lg:w-[240px] shrink-0 flex flex-col gap-3 p-6 lg:p-10" style={{ background: '#040408', borderRight: '1px solid rgba(255,255,255,0.04)' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 40, paddingLeft: 4 }}>
+      <div className="lg:w-[240px] shrink-0 flex flex-col gap-3 p-5 md:p-6 lg:p-10" style={{ background: '#040408', borderRight: '1px solid rgba(255,255,255,0.04)' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 16, paddingLeft: 4 }}>
           <div style={{ width: 36, height: 36, borderRadius: 10, background: 'linear-gradient(135deg,#6366f1,#818cf8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" /></svg>
           </div>
           <span style={{ color: '#fff', fontWeight: 700, fontSize: 18 }}>Ezra</span>
         </div>
-        <div className="flex flex-row overflow-x-auto lg:flex-col gap-2 pb-2 lg:pb-0">
+        <div className="flex flex-row overflow-x-auto lg:flex-col gap-2 pb-2 lg:pb-0 scrollbar-hide -mx-2 px-2 lg:mx-0 lg:px-0">
           {[{ l: 'Dashboard', a: true }, { l: 'Workers', a: false }, { l: 'Bookings', a: false }, { l: 'Map', a: false }, { l: 'Reviews', a: false }, { l: 'Settings', a: false }].map(n => (
             <div key={n.l} className="shrink-0" style={{
-              padding: '12px 16px', borderRadius: 10, fontSize: 14, fontWeight: n.a ? 600 : 400, cursor: 'pointer',
+              padding: '10px 14px', borderRadius: 10, fontSize: 14, fontWeight: n.a ? 600 : 400, cursor: 'pointer',
               background: n.a ? 'rgba(99,102,241,0.1)' : 'transparent', color: n.a ? '#818cf8' : '#52525b',
               transition: 'background 0.2s',
             }}>{n.l}</div>
@@ -35,41 +34,45 @@ function Dashboard() {
         </div>
       </div>
       {/* main */}
-      <div className="flex-1 flex flex-col gap-8 p-6 lg:p-10" style={{ overflow: 'hidden', background: '#0a0a14' }}>
+      <div className="flex-1 flex flex-col gap-6 p-5 md:p-6 lg:p-10" style={{ overflow: 'hidden', background: '#0a0a14' }}>
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <p style={{ color: '#f4f4f5', fontWeight: 800, fontSize: 22 }}>Good morning, Admin</p>
-            <p style={{ color: '#71717a', fontSize: 14, marginTop: 6 }}>Mumbai • 24 workers online</p>
+            <p style={{ color: '#f4f4f5', fontWeight: 800 }} className="text-xl md:text-2xl">Good morning, Admin</p>
+            <p style={{ color: '#71717a', marginTop: 4 }} className="text-xs md:text-sm">Mumbai • 24 workers online</p>
           </div>
-          <div style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 20, padding: '8px 16px', color: '#818cf8', fontSize: 13, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
+          <div style={{ background: 'rgba(99,102,241,0.1)', border: '1px solid rgba(99,102,241,0.18)', borderRadius: 20, padding: '6px 12px', color: '#818cf8', fontSize: 12, fontWeight: 600, display: 'flex', alignItems: 'center', gap: 8 }}>
             <span style={{ width: 8, height: 8, borderRadius: '50%', background: '#34d399', display: 'inline-block' }} />
             Live System Status
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {stats.map((s, i) => (
-            <div key={i} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16, padding: '24px 28px' }}>
-              <p style={{ color: '#71717a', fontSize: 12, fontWeight: 700, letterSpacing: .5, textTransform: 'uppercase', marginBottom: 12 }}>{s.label}</p>
-              <p style={{ color: '#f4f4f5', fontSize: 32, fontWeight: 800, fontFamily: "'Space Grotesk',sans-serif", lineHeight: 1 }}>{s.value}</p>
-              <p style={{ color: s.color, fontSize: 13, marginTop: 12, fontWeight: 600 }}>↑ {s.delta} this week</p>
+            <div key={i} className="p-5 lg:p-6" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16 }}>
+              <p style={{ color: '#71717a', fontSize: 11, fontWeight: 700, letterSpacing: .5, textTransform: 'uppercase', marginBottom: 8 }}>{s.label}</p>
+              <p style={{ color: '#f4f4f5', fontWeight: 800, fontFamily: "'Space Grotesk',sans-serif", lineHeight: 1 }} className="text-[28px] md:text-[32px]">{s.value}</p>
+              <p style={{ color: s.color, fontSize: 12, marginTop: 8, fontWeight: 600 }}>↑ {s.delta} this week</p>
             </div>
           ))}
         </div>
-        <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16, padding: '28px 32px', flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 20 }}>
+        <div className="p-4 md:p-6 lg:p-8" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16, flex: 1, overflow: 'hidden', display: 'flex', flexDirection: 'column' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
             <p style={{ color: '#f4f4f5', fontWeight: 700, fontSize: 16 }}>Nearby Workers</p>
-            <p style={{ color: '#818cf8', fontSize: 14, fontWeight: 600, cursor: 'pointer' }}>View all →</p>
+            <p style={{ color: '#818cf8', fontSize: 13, fontWeight: 600, cursor: 'pointer' }}>View all →</p>
           </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, flex: 1, overflowY: 'auto' }}>
+          <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1 pb-2 scrollbar-hide">
             {workers.map((w, i) => (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 16, padding: '14px 20px', background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12 }}>
-                <div style={{ width: 42, height: 42, borderRadius: 12, background: w.hue, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: w.accent }}>{w.initials}</div>
-                <div style={{ flex: 1 }}>
-                  <p style={{ color: '#f4f4f5', fontSize: 15, fontWeight: 600 }}>{w.name}</p>
-                  <p style={{ color: '#71717a', fontSize: 13, marginTop: 4 }}>{w.role} · {w.dist} away</p>
+              <div key={i} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12 }}>
+                <div className="flex items-center gap-4 w-full sm:w-auto flex-1">
+                  <div style={{ width: 40, height: 40, borderRadius: 10, background: w.hue, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: w.accent, flexShrink: 0 }}>{w.initials}</div>
+                  <div style={{ flex: 1 }}>
+                    <p style={{ color: '#f4f4f5', fontSize: 14, fontWeight: 600 }}>{w.name}</p>
+                    <p style={{ color: '#71717a', fontSize: 12, marginTop: 2 }}>{w.role} • {w.dist}</p>
+                  </div>
                 </div>
-                <p style={{ color: '#fbbf24', fontSize: 14, fontWeight: 700, marginRight: 20 }}>★ {w.rating}</p>
-                <div style={{ background: 'linear-gradient(135deg,#6366f1,#818cf8)', borderRadius: 8, padding: '8px 20px', color: '#fff', fontSize: 13, fontWeight: 700, cursor: 'pointer' }}>Book</div>
+                <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-[rgba(255,255,255,0.05)]">
+                  <p style={{ color: '#fbbf24', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap' }}>★ {w.rating}</p>
+                  <div style={{ background: 'linear-gradient(135deg,#6366f1,#818cf8)', borderRadius: 8, padding: '6px 16px', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>Book</div>
+                </div>
               </div>
             ))}
           </div>
@@ -106,6 +109,7 @@ export default function AppPreviewSection() {
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.7, delay: 0.3 }}
+        className="w-full"
         style={{ maxWidth: 1100, margin: '0 auto 80px', borderRadius: 24, padding: '8px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
       >
         <Dashboard />
