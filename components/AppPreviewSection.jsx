@@ -35,7 +35,7 @@ function Dashboard() {
       </div>
       {/* main */}
       <div className="flex-1 flex flex-col gap-6 p-5 md:p-6 lg:p-10" style={{ overflow: 'hidden', background: '#0a0a14' }}>
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
           <div>
             <p style={{ color: '#f4f4f5', fontWeight: 800 }} className="text-xl md:text-2xl">Good morning, Admin</p>
             <p style={{ color: '#71717a', marginTop: 4 }} className="text-xs md:text-sm">Mumbai • 24 workers online</p>
@@ -45,7 +45,7 @@ function Dashboard() {
             Live System Status
           </div>
         </div>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {stats.map((s, i) => (
             <div key={i} className="p-5 lg:p-6" style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)', borderRadius: 16 }}>
               <p style={{ color: '#71717a', fontSize: 11, fontWeight: 700, letterSpacing: .5, textTransform: 'uppercase', marginBottom: 8 }}>{s.label}</p>
@@ -61,15 +61,15 @@ function Dashboard() {
           </div>
           <div className="flex flex-col gap-3 flex-1 overflow-y-auto pr-1 pb-2 scrollbar-hide">
             {workers.map((w, i) => (
-              <div key={i} className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4 p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12 }}>
-                <div className="flex items-center gap-4 w-full sm:w-auto flex-1">
+              <div key={i} className="flex flex-col md:flex-row items-start md:items-center gap-3 md:gap-4 p-4" style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.04)', borderRadius: 12 }}>
+                <div className="flex items-center gap-4 w-full md:w-auto flex-1">
                   <div style={{ width: 40, height: 40, borderRadius: 10, background: w.hue, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 14, fontWeight: 800, color: w.accent, flexShrink: 0 }}>{w.initials}</div>
                   <div style={{ flex: 1 }}>
                     <p style={{ color: '#f4f4f5', fontSize: 14, fontWeight: 600 }}>{w.name}</p>
                     <p style={{ color: '#71717a', fontSize: 12, marginTop: 2 }}>{w.role} • {w.dist}</p>
                   </div>
                 </div>
-                <div className="flex items-center justify-between sm:justify-end gap-4 w-full sm:w-auto mt-2 sm:mt-0 pt-3 sm:pt-0 border-t sm:border-0 border-[rgba(255,255,255,0.05)]">
+                <div className="flex items-center justify-between md:justify-end gap-4 w-full md:w-auto mt-2 md:mt-0 pt-3 md:pt-0 border-t md:border-0 border-[rgba(255,255,255,0.05)]">
                   <p style={{ color: '#fbbf24', fontSize: 13, fontWeight: 700, whiteSpace: 'nowrap' }}>★ {w.rating}</p>
                   <div style={{ background: 'linear-gradient(135deg,#6366f1,#818cf8)', borderRadius: 8, padding: '6px 16px', color: '#fff', fontSize: 12, fontWeight: 700, cursor: 'pointer', textAlign: 'center' }}>Book</div>
                 </div>
