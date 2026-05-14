@@ -68,7 +68,7 @@ export default function ForEveryoneSection() {
           </motion.h2>
 
           {/* Tab Bar */}
-          <div style={{ display:'inline-flex', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:14, padding:3, gap:3 }}>
+          <div style={{ display:'inline-flex', background:'rgba(255,255,255,0.03)', border:'1px solid rgba(255,255,255,0.06)', borderRadius:14, padding:3, gap:3, flexWrap: 'wrap', justifyContent: 'center' }}>
             {TABS.map(t => (
               <button key={t.id} onClick={() => setActiveTab(t.id)} style={{
                 background: activeTab === t.id ? 'linear-gradient(135deg,#6366f1,#818cf8)' : 'transparent',
@@ -87,9 +87,9 @@ export default function ForEveryoneSection() {
             initial={{ opacity:0, x:40 }} animate={{ opacity:1, x:0 }}
             exit={{ opacity:0, x:-40 }} transition={{ duration:0.4 }}
           >
-            <WobbleCard containerClassName="bg-indigo-950" className="px-8 py-16 sm:px-16">
-              <div style={{ display:'grid', gridTemplateColumns:'1.2fr 1fr', gap:60, alignItems:'center' }}>
-                <div>
+            <WobbleCard containerClassName="bg-indigo-950" className="px-6 py-12 sm:px-16 sm:py-16">
+              <div className="flex flex-col lg:grid lg:grid-cols-[1.2fr_1fr] gap-12 lg:gap-16 items-center">
+                <div className="order-2 lg:order-1 w-full">
                   <h3 style={{ fontFamily:"'Space Grotesk',sans-serif", fontWeight:800, fontSize:'clamp(1.5rem,3vw,2.5rem)', color:'#fff', marginBottom:32, lineHeight:1.2 }}>
                     {tab.headline}
                   </h3>
@@ -102,19 +102,19 @@ export default function ForEveryoneSection() {
                       </motion.div>
                     ))}
                   </div>
-                  <button className="btn-primary" style={{ background:'#fff', color:'#312e81', fontSize: '1.05rem', padding: '14px 28px' }}>{tab.cta}</button>
+                  <button className="btn-primary w-full sm:w-auto" style={{ background:'#fff', color:'#312e81', fontSize: '1.05rem', padding: '14px 28px' }}>{tab.cta}</button>
                 </div>
 
                 {/* Visual */}
-                <div style={{ display: 'flex', justifyContent: 'center' }}>
-                  <div style={{ width: '100%', maxWidth: 360, background:'rgba(255,255,255,0.06)', borderRadius:24, border:'1px solid rgba(255,255,255,0.08)', padding:32, boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
+                <div className="order-1 lg:order-2 w-full flex justify-center lg:justify-end">
+                  <div style={{ width: '100%', maxWidth: 400, background:'rgba(255,255,255,0.06)', borderRadius:24, border:'1px solid rgba(255,255,255,0.08)', padding:32, boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
                     {tab.id === 'customer' && (
                       <>
                         <p style={{ color:'#a1a1aa', fontSize:'.85rem', marginBottom:12, textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700 }}>Your notifications</p>
                         {['Worker accepted your job', 'Worker arrived on location', 'Job completed — rate now'].map((n,i) => (
                           <motion.div key={i} initial={{ opacity:0, x:20 }} animate={{ opacity:1, x:0 }} transition={{ delay:i*0.2 }}
                             style={{ background:'rgba(255,255,255,0.05)', borderRadius:12, padding:'16px 20px', marginBottom:12, fontSize:'.95rem', color:'#f4f4f5', display: 'flex', alignItems: 'center', gap: 12 }}>
-                            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#818cf8' }} />
+                            <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#818cf8', flexShrink: 0 }} />
                             {n}
                           </motion.div>
                         ))}
@@ -138,9 +138,9 @@ export default function ForEveryoneSection() {
                         <p style={{ color:'#a1a1aa', fontSize:'.85rem', marginBottom:16, textTransform: 'uppercase', letterSpacing: 1, fontWeight: 700 }}>Team of 12 · 8 Active</p>
                         {['Raj','Suresh','Amit','Dev'].map((m,i) => (
                           <div key={m} style={{ display:'flex', alignItems:'center', gap:12, marginBottom:12, padding: '8px 0' }}>
-                            <div style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#6366f1,#818cf8)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'#fff' }}>{m[0]}</div>
+                            <div style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#6366f1,#818cf8)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:12, fontWeight:700, color:'#fff', flexShrink: 0 }}>{m[0]}</div>
                             <span style={{ color:'#f4f4f5', fontSize:'1rem', flex:1, fontWeight: 500 }}>{m}</span>
-                            <span style={{ width:8, height:8, borderRadius:'50%', background: i%2===0 ? '#34d399' : '#fbbf24' }} />
+                            <span style={{ width:8, height:8, borderRadius:'50%', background: i%2===0 ? '#34d399' : '#fbbf24', flexShrink: 0 }} />
                           </div>
                         ))}
                       </>
@@ -152,13 +152,6 @@ export default function ForEveryoneSection() {
           </motion.div>
         </AnimatePresence>
       </div>
-
-      <style>{`
-        @media (max-width:900px) {
-          #for-everyone div[style*="grid-template-columns: 1.2fr 1fr"] { grid-template-columns: 1fr !important; gap: 40px !important; }
-          #for-everyone div[style*="justify-content: center"] { display:none !important; }
-        }
-      `}</style>
     </section>
   );
 }
