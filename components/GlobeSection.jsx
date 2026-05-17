@@ -1,170 +1,817 @@
 'use client';
-import { useState, useEffect } from 'react';
+
+import { useState, useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
 
+/* ═══════════════════════════════════════════════════
+   ANIMATION
+═══════════════════════════════════════════════════ */
+const EASE = [0.22, 1, 0.36, 1];
+
+/* ═══════════════════════════════════════════════════
+   STATIC DATA — defined outside component
+   to prevent recreation on every render
+═══════════════════════════════════════════════════ */
+const WORKERS = [
+  {
+    name: 'Rajesh Kumar',
+    role: 'Plumber',
+    dist: '0.3 km',
+    rating: 4.9,
+    online: true,
+    avatar: { bg: '#151530', fg: 'var(--accent)' },
+  },
+  {
+    name: 'Priya Sharma',
+    role: 'Painter',
+    dist: '0.7 km',
+    rating: 4.8,
+    online: true,
+    avatar: { bg: '#201510', fg: 'var(--violet)' },
+  },
+  {
+    name: 'Suresh Verma',
+    role: 'Electrician',
+    dist: '1.1 km',
+    rating: 5.0,
+    online: false,
+    avatar: { bg: '#152015', fg: 'var(--emerald)' },
+  },
+];
+
+const MAP_PINS = [
+  { x: '30%', y: '45%', color: 'var(--accent)' },
+  { x: '58%', y: '30%', color: 'var(--sky)' },
+  { x: '72%', y: '60%', color: 'var(--emerald)' },
+];
+
+const PHONE_BUTTONS = [
+  { side: 'left', top: 118, height: 30 },
+  { side: 'left', top: 160, height: 46 },
+  { side: 'left', top: 216, height: 46 },
+  { side: 'right', top: 150, height: 64 },
+];
+
+const STATS = [
+  { value: '50+', label: 'Cities', sub: 'Across India', color: 'var(--accent)' },
+  { value: '2.5K', label: 'Workers', sub: 'Verified & active', color: 'var(--emerald)' },
+  { value: '10K+', label: 'Jobs done', sub: '& counting', color: 'var(--sky)' },
+  { value: '4.9★', label: 'Rating', sub: 'Real customer reviews', color: 'var(--amber)' },
+];
+
+const CITIES = [
+  'Mumbai', 'Delhi', 'Bangalore', 'Hyderabad',
+  'Chennai', 'Pune', 'Kolkata', 'Ahmedabad',
+  'Jaipur', 'Surat', 'Chandigarh', 'Hubli',
+];
+
+/* ═══════════════════════════════════════════════════
+   PHONE MOCKUP
+═══════════════════════════════════════════════════ */
 function PhoneMockup() {
   const [active, setActive] = useState(0);
-  const workers = [
-    { name: 'Rajesh Kumar', role: 'Plumber', dist: '0.3 km', rating: 4.9, online: true },
-    { name: 'Priya Sharma', role: 'Painter', dist: '0.7 km', rating: 4.8, online: true },
-    { name: 'Suresh Verma', role: 'Electrician', dist: '1.1 km', rating: 5.0, online: false },
-  ];
+  const [prefersReduced, setReduced] = useState(false);
+  const intervalRef = useRef(null);
+
+  /* Reduced-motion preference */
   useEffect(() => {
-    const t = setInterval(() => setActive(i => (i + 1) % workers.length), 3000);
-    return () => clearInterval(t);
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)');
+    setReduced(mq.matches);
+    const onChange = (e) => setReduced(e.matches);
+    mq.addEventListener('change', onChange);
+    return () => mq.removeEventListener('change', onChange);
   }, []);
 
+  /* Auto-cycle active worker — pause on hidden tab + reduced-motion */
+  useEffect(() => {
+    if (prefersReduced) return;
+
+    const start = () => {
+      intervalRef.current = setInterval(() => {
+        setActive((i) => (i + 1) % WORKERS.length);
+      }, 3000);
+    };
+    const stop = () => clearInterval(intervalRef.current);
+
+    const onVis = () => (document.hidden ? stop() : start());
+
+    start();
+    document.addEventListener('visibilitychange', onVis);
+
+    return () => {
+      stop();
+      document.removeEventListener('visibilitychange', onVis);
+    };
+  }, [prefersReduced]);
+
   return (
-    <div style={{
-      width: 280, height: 570, borderRadius: 52,
-      background: 'linear-gradient(160deg, #1c1c1e, #141414)',
-      boxShadow: '0 0 0 1px rgba(255,255,255,0.10), 0 40px 100px rgba(0,0,0,0.75), 0 0 0 8px #000',
-      position: 'relative', overflow: 'hidden', flexShrink: 0,
-    }}>
-      {/* buttons */}
-      {[{ s: 'left', t: 118, h: 30 }, { s: 'left', t: 160, h: 46 }, { s: 'left', t: 216, h: 46 }, { s: 'right', t: 150, h: 64 }].map((b, i) => (
-        <div key={i} style={{ position: 'absolute', [b.s]: -3, top: b.t, width: 3, height: b.h, background: '#2a2a2e', borderRadius: b.s === 'left' ? '4px 0 0 4px' : '0 4px 4px 0' }} />
+    <div className="phone" role="img" aria-label="Ezra mobile app preview showing nearby workers">
+
+      {/* Side buttons */}
+      {PHONE_BUTTONS.map((btn, i) => (
+        <div
+          key={`btn-${i}`}
+          className="phone-side-btn"
+          style={{
+            [btn.side]: -3,
+            top: btn.top,
+            height: btn.height,
+            borderRadius: btn.side === 'left' ? '4px 0 0 4px' : '0 4px 4px 0',
+          }}
+          aria-hidden
+        />
       ))}
-      {/* screen */}
-      <div style={{ position: 'absolute', inset: 6, borderRadius: 48, background: '#000', overflow: 'hidden' }}>
+
+      {/* Screen */}
+      <div className="phone-screen">
+
         {/* Dynamic Island */}
-        <div style={{ position: 'absolute', top: 14, left: '50%', transform: 'translateX(-50%)', width: 115, height: 32, background: '#000', borderRadius: 20, zIndex: 10, display: 'flex', alignItems: 'center', justifyContent: 'flex-end', paddingRight: 12, gap: 6 }}>
-          <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#1c1c1e', border: '1px solid #2a2a2a' }} />
-          <div style={{ width: 5, height: 5, borderRadius: '50%', background: '#1e3a5f' }} />
+        <div className="phone-island" aria-hidden>
+          <span className="phone-island-cam" />
+          <span className="phone-island-dot" />
         </div>
 
         {/* App UI */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, #08080f, #04040a)', padding: '60px 16px 16px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          {/* header */}
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <div className="phone-app">
+
+          {/* Header */}
+          <div className="phone-header">
             <div>
-              <p style={{ color: '#52525b', fontSize: 11, fontWeight: 600, letterSpacing: .5, textTransform: 'uppercase' }}>Ezra</p>
-              <p style={{ color: '#fff', fontSize: 16, fontWeight: 700, lineHeight: 1.2 }}>Mumbai</p>
+              <p className="phone-brand">Ezra</p>
+              <p className="phone-city">Mumbai</p>
             </div>
-            <div style={{
-              background: 'rgba(99,102,241,0.12)', border: '1px solid rgba(99,102,241,0.2)',
-              borderRadius: 20, padding: '5px 12px', fontSize: 11, color: '#818cf8', fontWeight: 700,
-              display: 'flex', alignItems: 'center', gap: 5,
-            }}>
-              <span style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', display: 'inline-block' }} />
+            <div className="phone-live">
+              <span className="phone-live-dot" aria-hidden />
               LIVE
             </div>
           </div>
-          {/* map */}
-          <div style={{
-            height: 140, borderRadius: 16, background: 'linear-gradient(135deg, #0a0a14, #0e1020)',
-            border: '1px solid rgba(255,255,255,0.05)', position: 'relative', overflow: 'hidden',
-          }}>
-            {Array.from({ length: 5 }).map((_, i) => <div key={i} style={{ position: 'absolute', top: 0, bottom: 0, left: `${i * 25}%`, width: 1, background: 'rgba(255,255,255,0.03)' }} />)}
-            {Array.from({ length: 4 }).map((_, i) => <div key={i} style={{ position: 'absolute', left: 0, right: 0, top: `${i * 33}%`, height: 1, background: 'rgba(255,255,255,0.03)' }} />)}
-            {[{ x: '30%', y: '45%', c: '#818cf8' }, { x: '58%', y: '30%', c: '#38bdf8' }, { x: '72%', y: '60%', c: '#34d399' }].map((d, i) => (
-              <div key={i} style={{ position: 'absolute', left: d.x, top: d.y }}>
-                <div style={{ width: 8, height: 8, borderRadius: '50%', background: d.c, boxShadow: `0 0 6px ${d.c}` }} />
-                <div style={{ position: 'absolute', inset: -5, borderRadius: '50%', border: `1px solid ${d.c}`, opacity: .35, animation: `pulse-ring 2s ${i * .6}s ease-out infinite` }} />
+
+          {/* Map */}
+          <div className="phone-map" aria-hidden>
+            {/* Grid lines */}
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div
+                key={`v-${i}`}
+                className="phone-map-line phone-map-line-v"
+                style={{ left: `${i * 25}%` }}
+              />
+            ))}
+            {Array.from({ length: 4 }).map((_, i) => (
+              <div
+                key={`h-${i}`}
+                className="phone-map-line phone-map-line-h"
+                style={{ top: `${i * 33}%` }}
+              />
+            ))}
+
+            {/* Worker pins */}
+            {MAP_PINS.map((pin, i) => (
+              <div
+                key={`pin-${i}`}
+                className="phone-map-pin-wrap"
+                style={{ left: pin.x, top: pin.y }}
+              >
+                <span
+                  className="phone-map-pin"
+                  style={{
+                    background: pin.color,
+                    boxShadow: `0 0 6px ${pin.color}`,
+                  }}
+                />
+                <span
+                  className="phone-map-ring"
+                  style={{
+                    borderColor: pin.color,
+                    animationDelay: `${i * 0.6}s`,
+                  }}
+                />
               </div>
             ))}
-            <div style={{ position: 'absolute', bottom: 8, left: '50%', transform: 'translateX(-50%)', color: '#3f3f46', fontSize: 10, fontWeight: 600, letterSpacing: .5, whiteSpace: 'nowrap' }}>BANDRA WEST</div>
+
+            <span className="phone-map-label">BANDRA WEST</span>
           </div>
-          {/* worker cards */}
-          <p style={{ color: '#3f3f46', fontSize: 11, fontWeight: 700, letterSpacing: .8, textTransform: 'uppercase' }}>Nearby Workers</p>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-            {workers.map((w, i) => (
-              <motion.div key={i}
-                animate={{
-                  background: active === i ? 'rgba(99,102,241,0.06)' : 'rgba(255,255,255,0.02)',
-                  borderColor: active === i ? 'rgba(99,102,241,0.18)' : 'rgba(255,255,255,0.05)',
-                }}
-                style={{ borderRadius: 12, border: '1px solid rgba(255,255,255,0.05)', padding: '10px 12px', display: 'flex', alignItems: 'center', gap: 10, cursor: 'pointer' }}
-                onClick={() => setActive(i)}
-              >
-                <div style={{
-                  width: 36, height: 36, borderRadius: 10,
-                  background: ['#151530', '#201510', '#152015'][i],
-                  border: '1px solid rgba(255,255,255,0.06)',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  fontSize: 13, fontWeight: 800, color: ['#818cf8', '#a78bfa', '#34d399'][i],
-                }}>
-                  {w.name.split(' ').map(n => n[0]).join('')}
-                </div>
-                <div style={{ flex: 1, minWidth: 0 }}>
-                  <p style={{ color: '#e4e4e7', fontSize: 12, fontWeight: 700, lineHeight: 1.2, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{w.name}</p>
-                  <p style={{ color: '#52525b', fontSize: 11, marginTop: 1 }}>{w.role} · {w.dist}</p>
-                </div>
-                <div style={{ flexShrink: 0, textAlign: 'right' }}>
-                  <p style={{ color: '#fbbf24', fontSize: 11, fontWeight: 700 }}>★ {w.rating}</p>
-                  {w.online && <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#34d399', marginLeft: 'auto', marginTop: 4 }} />}
-                </div>
-              </motion.div>
-            ))}
+
+          {/* Worker list label */}
+          <p className="phone-list-label">Nearby Workers</p>
+
+          {/* Worker cards */}
+          <div className="phone-worker-list">
+            {WORKERS.map((w, i) => {
+              const initials = w.name.split(' ').map((n) => n[0]).join('');
+              const isActive = active === i;
+
+              return (
+                <button
+                  key={w.name}
+                  type="button"
+                  onClick={() => setActive(i)}
+                  className={`phone-worker ${isActive ? 'phone-worker-active' : ''}`}
+                  aria-label={`Select ${w.name}, ${w.role}, ${w.dist} away`}
+                  aria-pressed={isActive}
+                >
+                  <span
+                    className="phone-worker-avatar"
+                    style={{
+                      background: w.avatar.bg,
+                      color: w.avatar.fg,
+                    }}
+                    aria-hidden
+                  >
+                    {initials}
+                  </span>
+
+                  <span className="phone-worker-info">
+                    <span className="phone-worker-name">{w.name}</span>
+                    <span className="phone-worker-meta">
+                      {w.role} · {w.dist}
+                    </span>
+                  </span>
+
+                  <span className="phone-worker-right">
+                    <span className="phone-worker-rating">★ {w.rating}</span>
+                    {w.online && (
+                      <span
+                        className="phone-worker-online"
+                        aria-label="Online"
+                      />
+                    )}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
-        {/* glass */}
-        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(135deg, rgba(255,255,255,0.025), transparent 50%)', pointerEvents: 'none', borderRadius: 48 }} />
-        {/* home bar */}
-        <div style={{ position: 'absolute', bottom: 12, left: '50%', transform: 'translateX(-50%)', width: 90, height: 5, background: 'rgba(255,255,255,0.2)', borderRadius: 5, zIndex: 10 }} />
+
+        {/* Glass reflection */}
+        <div className="phone-glass" aria-hidden />
+
+        {/* Home indicator */}
+        <div className="phone-home" aria-hidden />
       </div>
     </div>
   );
 }
 
-const CITIES = [
-  { label: 'Mumbai' }, { label: 'Delhi' }, { label: 'Bangalore' }, { label: 'Hyderabad' },
-  { label: 'Chennai' }, { label: 'Pune' }, { label: 'Kolkata' }, { label: 'Ahmedabad' },
-  { label: 'Jaipur' }, { label: 'Surat' }, { label: 'Chandigarh' }, { label: 'Hubli' },
-];
-
-const STATS = [
-  { value: '50+', label: 'Cities', sub: 'Across India', color: '#818cf8' },
-  { value: '2.5K', label: 'Workers', sub: 'Verified & active', color: '#34d399' },
-  { value: '10K+', label: 'Jobs done', sub: '& counting', color: '#38bdf8' },
-  { value: '4.9★', label: 'Rating', sub: 'Real customer reviews', color: '#fbbf24' },
-];
-
+/* ═══════════════════════════════════════════════════
+   GLOBE / COVERAGE SECTION
+═══════════════════════════════════════════════════ */
 export default function GlobeSection() {
   return (
-    <section id="coverage" style={{ background: 'linear-gradient(180deg, #040408, #000)', padding: '120px 5%', position: 'relative', overflow: 'hidden' }}>
-      <div style={{ position: 'absolute', left: '30%', top: '50%', transform: 'translate(-50%,-50%)', width: 500, height: 500, background: 'radial-gradient(circle, rgba(99,102,241,0.04), transparent 70%)', pointerEvents: 'none', filter: 'blur(80px)' }} />
-      <div style={{ maxWidth: 1200, margin: '0 auto', position: 'relative', zIndex: 1 }}>
-        <div style={{ textAlign: 'center', marginBottom: 60 }}>
-          <motion.span initial={{ opacity: 0, y: 14 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="pill" style={{ display: 'inline-flex', marginBottom: 20 }}>
+    <section id="coverage" className="globe-section">
+
+      {/* Decorative glow */}
+      <div className="globe-glow" aria-hidden />
+
+      <div className="section-container">
+
+        {/* ════════════════════════════════════
+            HEADER
+        ════════════════════════════════════ */}
+        <header className="globe-header">
+          <motion.span
+            initial={{ opacity: 0, y: 14 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="pill"
+          >
             📱 The Ultimate App
           </motion.span>
-          <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} viewport={{ once: true }}
-            style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 'clamp(2rem,4vw,3.5rem)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.04em', color: '#f4f4f5', marginBottom: 14 }}>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.1 }}
+            viewport={{ once: true }}
+            className="globe-heading"
+          >
             Experience Seamless{' '}
-            <span style={{ background: 'linear-gradient(135deg,#818cf8,#6366f1)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-              Connections.
-            </span>
+            <span className="text-gradient">Connections.</span>
           </motion.h2>
-          <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.2 }} viewport={{ once: true }}
-            style={{ color: '#52525b', fontSize: '1rem', maxWidth: 440, margin: '0 auto' }}>
-            A meticulously designed mobile interface that makes finding workers incredibly simple.
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 0.2 }}
+            viewport={{ once: true }}
+            className="globe-subhead"
+          >
+            A meticulously designed mobile interface that makes finding
+            workers incredibly simple.
           </motion.p>
-        </div>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 60, flexWrap: 'wrap' }}>
-          <motion.div initial={{ opacity: 0, scale: 0.92 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7 }} viewport={{ once: true }} style={{ position: 'relative' }}>
-            <div style={{ position: 'absolute', width: 300, height: 300, borderRadius: '50%', background: 'radial-gradient(circle, rgba(99,102,241,0.08), transparent 70%)', pointerEvents: 'none', filter: 'blur(40px)', top: '50%', left: '50%', transform: 'translate(-50%, -50%)' }} />
-            <motion.div animate={{ y: [0, -10, 0] }} transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut' }}>
+        </header>
+
+        {/* ════════════════════════════════════
+            PHONE + STATS
+        ════════════════════════════════════ */}
+        <div className="globe-showcase">
+
+          {/* Phone */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.92 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.7, ease: EASE }}
+            viewport={{ once: true }}
+            className="globe-phone-wrap"
+          >
+            <div className="globe-phone-halo" aria-hidden />
+            <motion.div
+              animate={{ y: [0, -10, 0] }}
+              transition={{ repeat: Infinity, duration: 5, ease: 'easeInOut' }}
+              className="globe-phone-float"
+            >
               <PhoneMockup />
             </motion.div>
           </motion.div>
-          <div style={{ flex: '0 0 260px', display: 'flex', flexDirection: 'column', gap: 14 }}>
-            {STATS.map((s, i) => (
-              <motion.div key={i} initial={{ opacity: 0, x: 24 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.08 }} viewport={{ once: true }}
-                style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.06)', borderLeft: `3px solid ${s.color}`, borderRadius: 14, padding: '18px' }}>
-                <p style={{ color: s.color, fontWeight: 900, fontSize: '1.75rem', fontFamily: "'Space Grotesk',sans-serif", lineHeight: 1 }}>{s.value}</p>
-                <p style={{ color: '#e4e4e7', fontWeight: 600, fontSize: '.875rem', marginTop: 3 }}>{s.label}</p>
-                <p style={{ color: '#52525b', fontSize: '.75rem', marginTop: 2 }}>{s.sub}</p>
-              </motion.div>
+
+          {/* Stats */}
+          <ul className="globe-stats" role="list">
+            {STATS.map((stat, i) => (
+              <motion.li
+                key={stat.label}
+                initial={{ opacity: 0, x: 24 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                transition={{ delay: i * 0.08, duration: 0.5, ease: EASE }}
+                viewport={{ once: true }}
+                className="globe-stat"
+                style={{ borderLeftColor: stat.color }}
+              >
+                <p
+                  className="globe-stat-value"
+                  style={{ color: stat.color }}
+                >
+                  {stat.value}
+                </p>
+                <p className="globe-stat-label">{stat.label}</p>
+                <p className="globe-stat-sub">{stat.sub}</p>
+              </motion.li>
             ))}
-          </div>
+          </ul>
         </div>
-        <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} viewport={{ once: true }}
-          style={{ display: 'flex', flexWrap: 'wrap', gap: 8, justifyContent: 'center', marginTop: 48 }}>
-          {CITIES.map(c => <span key={c.label} className="tag">{c.label}</span>)}
-          <span className="tag" style={{ color: '#818cf8', borderColor: 'rgba(99,102,241,0.2)' }}>+ 38 more</span>
-        </motion.div>
+
+        {/* ════════════════════════════════════
+            CITY TAGS
+        ════════════════════════════════════ */}
+        <motion.ul
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, ease: EASE }}
+          viewport={{ once: true }}
+          className="globe-cities"
+          role="list"
+          aria-label="Available cities"
+        >
+          {CITIES.map((city) => (
+            <li key={city}>
+              <span className="tag">{city}</span>
+            </li>
+          ))}
+          <li>
+            <span className="tag globe-city-more">+ 38 more</span>
+          </li>
+        </motion.ul>
       </div>
+
+      {/* ═══════════════════════════════════════
+          STYLES
+      ═══════════════════════════════════════ */}
+      <style>{`
+        /* ── Section ── */
+        .globe-section {
+          position: relative;
+          background: linear-gradient(180deg, #040408 0%, var(--bg) 100%);
+          padding: var(--section-py) 0;
+          overflow: hidden;
+        }
+        .globe-glow {
+          position: absolute;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          width: clamp(400px, 60vw, 600px);
+          height: 500px;
+          background: radial-gradient(
+            circle,
+            rgba(99, 102, 241, 0.04) 0%,
+            transparent 70%
+          );
+          pointer-events: none;
+          filter: blur(80px);
+          z-index: 0;
+        }
+
+        /* ── Header ── */
+        .globe-header {
+          position: relative;
+          z-index: 1;
+          text-align: center;
+          margin: 0 auto var(--block-gap);
+          max-width: 640px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: var(--space-4);
+        }
+        .globe-heading {
+          font-family: var(--font-space), 'Space Grotesk', sans-serif;
+          font-size: var(--text-5xl);
+          font-weight: 900;
+          line-height: 1.05;
+          letter-spacing: -0.04em;
+          color: var(--text-1);
+          margin: 0;
+        }
+        .globe-subhead {
+          color: var(--text-3);
+          font-size: var(--text-base);
+          line-height: 1.6;
+          margin: 0;
+          max-width: 440px;
+        }
+
+        /* ── Showcase row ── */
+        .globe-showcase {
+          position: relative;
+          z-index: 1;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: clamp(32px, 5vw, 64px);
+          flex-wrap: wrap;
+        }
+
+        /* ── Phone wrapper ── */
+        .globe-phone-wrap {
+          position: relative;
+          flex-shrink: 0;
+        }
+        .globe-phone-halo {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 300px;
+          height: 300px;
+          border-radius: 50%;
+          background: radial-gradient(
+            circle,
+            rgba(99, 102, 241, 0.08) 0%,
+            transparent 70%
+          );
+          filter: blur(40px);
+          pointer-events: none;
+        }
+        .globe-phone-float {
+          position: relative;
+          z-index: 1;
+        }
+
+        /* ── Stats column ── */
+        .globe-stats {
+          flex: 0 1 280px;
+          min-width: 240px;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-3);
+        }
+        .globe-stat {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid var(--border);
+          border-left: 3px solid;
+          border-radius: var(--r-md);
+          padding: var(--space-4) var(--space-5);
+        }
+        .globe-stat-value {
+          font-family: var(--font-space), 'Space Grotesk', sans-serif;
+          font-weight: 900;
+          font-size: 1.75rem;
+          line-height: 1;
+          margin: 0;
+          font-variant-numeric: tabular-nums;
+          letter-spacing: -0.02em;
+        }
+        .globe-stat-label {
+          color: var(--text-1);
+          font-weight: 600;
+          font-size: 0.875rem;
+          margin: 4px 0 2px;
+        }
+        .globe-stat-sub {
+          color: var(--text-3);
+          font-size: 0.75rem;
+          margin: 0;
+        }
+
+        /* ── City tags ── */
+        .globe-cities {
+          position: relative;
+          z-index: 1;
+          margin: var(--space-8) 0 0;
+          padding: 0;
+          list-style: none;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          justify-content: center;
+        }
+        .globe-city-more {
+          color: var(--accent);
+          border-color: rgba(99, 102, 241, 0.25);
+        }
+
+        /* ═══════════════════════════════════════
+           PHONE MOCKUP
+        ═══════════════════════════════════════ */
+        .phone {
+          width: 280px;
+          height: 570px;
+          border-radius: 52px;
+          background: linear-gradient(160deg, #1c1c1e 0%, #141414 100%);
+          box-shadow:
+            0 0 0 1px rgba(255, 255, 255, 0.1),
+            0 40px 100px rgba(0, 0, 0, 0.75),
+            0 0 0 8px #000;
+          position: relative;
+          overflow: hidden;
+          flex-shrink: 0;
+        }
+
+        .phone-side-btn {
+          position: absolute;
+          width: 3px;
+          background: #2a2a2e;
+        }
+
+        .phone-screen {
+          position: absolute;
+          inset: 6px;
+          border-radius: 48px;
+          background: #000;
+          overflow: hidden;
+        }
+
+        /* Dynamic Island */
+        .phone-island {
+          position: absolute;
+          top: 14px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 115px;
+          height: 32px;
+          background: #000;
+          border-radius: 20px;
+          z-index: 10;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          padding-right: 12px;
+          gap: 6px;
+        }
+        .phone-island-cam {
+          width: 8px; height: 8px;
+          border-radius: 50%;
+          background: #1c1c1e;
+          border: 1px solid #2a2a2a;
+        }
+        .phone-island-dot {
+          width: 5px; height: 5px;
+          border-radius: 50%;
+          background: #1e3a5f;
+        }
+
+        /* App */
+        .phone-app {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(180deg, #08080f 0%, #04040a 100%);
+          padding: 60px 16px 16px;
+          display: flex;
+          flex-direction: column;
+          gap: 14px;
+        }
+        .phone-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+        .phone-brand {
+          color: var(--text-3);
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          text-transform: uppercase;
+          margin: 0;
+        }
+        .phone-city {
+          color: #fff;
+          font-size: 16px;
+          font-weight: 700;
+          line-height: 1.2;
+          margin: 0;
+        }
+        .phone-live {
+          background: rgba(99, 102, 241, 0.12);
+          border: 1px solid rgba(99, 102, 241, 0.25);
+          border-radius: 20px;
+          padding: 5px 12px;
+          font-size: 11px;
+          color: var(--accent);
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          gap: 5px;
+        }
+        .phone-live-dot {
+          width: 6px; height: 6px;
+          border-radius: 50%;
+          background: var(--emerald);
+        }
+
+        /* Map */
+        .phone-map {
+          height: 140px;
+          border-radius: 16px;
+          background: linear-gradient(135deg, #0a0a14, #0e1020);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          position: relative;
+          overflow: hidden;
+        }
+        .phone-map-line {
+          position: absolute;
+          background: rgba(255, 255, 255, 0.03);
+        }
+        .phone-map-line-v {
+          top: 0; bottom: 0;
+          width: 1px;
+        }
+        .phone-map-line-h {
+          left: 0; right: 0;
+          height: 1px;
+        }
+        .phone-map-pin-wrap {
+          position: absolute;
+        }
+        .phone-map-pin {
+          display: block;
+          width: 8px; height: 8px;
+          border-radius: 50%;
+        }
+        .phone-map-ring {
+          position: absolute;
+          inset: -5px;
+          border-radius: 50%;
+          border: 1px solid;
+          opacity: 0.35;
+          animation: pulse-ring 2s ease-out infinite;
+        }
+        .phone-map-label {
+          position: absolute;
+          bottom: 8px;
+          left: 50%;
+          transform: translateX(-50%);
+          color: var(--text-3);
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.5px;
+          white-space: nowrap;
+        }
+
+        /* Worker list */
+        .phone-list-label {
+          color: var(--text-3);
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.8px;
+          text-transform: uppercase;
+          margin: 0;
+        }
+        .phone-worker-list {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .phone-worker {
+          all: unset;
+          box-sizing: border-box;
+          width: 100%;
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid rgba(255, 255, 255, 0.05);
+          border-radius: 12px;
+          padding: 10px 12px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          cursor: pointer;
+          transition: background .3s ease, border-color .3s ease;
+          font-family: inherit;
+        }
+        .phone-worker-active {
+          background: rgba(99, 102, 241, 0.08);
+          border-color: rgba(99, 102, 241, 0.25);
+        }
+
+        .phone-worker-avatar {
+          width: 36px; height: 36px;
+          border-radius: 10px;
+          border: 1px solid rgba(255, 255, 255, 0.06);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          font-weight: 800;
+          flex-shrink: 0;
+        }
+
+        .phone-worker-info {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+        }
+        .phone-worker-name {
+          color: #e4e4e7;
+          font-size: 12px;
+          font-weight: 700;
+          line-height: 1.2;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .phone-worker-meta {
+          color: var(--text-3);
+          font-size: 11px;
+          margin-top: 1px;
+        }
+
+        .phone-worker-right {
+          flex-shrink: 0;
+          text-align: right;
+          display: flex;
+          flex-direction: column;
+          align-items: flex-end;
+          gap: 4px;
+        }
+        .phone-worker-rating {
+          color: var(--amber);
+          font-size: 11px;
+          font-weight: 700;
+        }
+        .phone-worker-online {
+          width: 6px; height: 6px;
+          border-radius: 50%;
+          background: var(--emerald);
+        }
+
+        /* Glass / home */
+        .phone-glass {
+          position: absolute;
+          inset: 0;
+          background: linear-gradient(
+            135deg,
+            rgba(255, 255, 255, 0.025) 0%,
+            transparent 50%
+          );
+          pointer-events: none;
+          border-radius: 48px;
+        }
+        .phone-home {
+          position: absolute;
+          bottom: 12px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 90px;
+          height: 5px;
+          background: rgba(255, 255, 255, 0.2);
+          border-radius: 5px;
+          z-index: 10;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+          .globe-stats {
+            flex: 1 1 100%;
+            max-width: 400px;
+          }
+        }
+
+        @media (max-width: 380px) {
+          .phone {
+            width: 260px;
+            height: 530px;
+          }
+        }
+
+        /* ── Reduced motion ── */
+        @media (prefers-reduced-motion: reduce) {
+          .phone-map-ring,
+          .globe-phone-float {
+            animation: none !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

@@ -1,150 +1,376 @@
 'use client';
+
 import { motion } from 'framer-motion';
 
-function Dashboard() {
-  const stats = [
-    { label: 'Active Workers', value: '2,847', delta: '+12%', color: '#818cf8' },
-    { label: 'Bookings Today', value: '1,293', delta: '+8%', color: '#34d399' },
-    { label: 'Avg Response', value: '< 45s', delta: 'Live', color: '#38bdf8' },
-  ];
-  const workers = [
-    { initials: 'RK', name: 'Rajesh Kumar', role: 'Plumber', rating: 4.9, dist: '0.3 km', hue: '#151530', accent: '#818cf8' },
-    { initials: 'PS', name: 'Priya Sharma', role: 'Painter', rating: 4.8, dist: '0.7 km', hue: '#201520', accent: '#a78bfa' },
-    { initials: 'SV', name: 'Suresh Verma', role: 'Electrician', rating: 5.0, dist: '1.2 km', hue: '#152015', accent: '#34d399' },
-    { initials: 'AN', name: 'Anita Nair', role: 'Carpenter', rating: 4.7, dist: '1.8 km', hue: '#201525', accent: '#fb7185' },
-  ];
-  return (
-    <div className="flex flex-col lg:flex-row overflow-hidden shadow-2xl rounded-[16px] md:rounded-[24px] w-full mx-auto max-w-full min-w-0" style={{ minHeight: 600, background: '#060610' }}>
-      <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; } .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }`}</style>
-      {/* sidebar */}
-      <div className="lg:w-[240px] w-full shrink-0 flex flex-col gap-3 p-4 md:p-6 lg:p-10 max-w-full min-w-0 overflow-hidden" style={{ background: '#040408', borderRight: '1px solid rgba(255,255,255,0.04)' }}>
-        <div className="flex items-center gap-3 mb-2 lg:mb-8 pl-1">
-          <div style={{ width: 32, height: 32, borderRadius: 10, background: 'linear-gradient(135deg,#6366f1,#818cf8)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.5" strokeLinecap="round"><path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z" /></svg>
-          </div>
-          <span className="text-white font-bold text-lg">Ezra</span>
-        </div>
-        <div className="flex flex-row overflow-x-auto lg:flex-col gap-2 pb-1 lg:pb-0 hide-scrollbar lg:mx-0 w-full min-w-0">
-          {[{ l: 'Dashboard', a: true }, { l: 'Workers', a: false }, { l: 'Bookings', a: false }, { l: 'Map', a: false }, { l: 'Reviews', a: false }, { l: 'Settings', a: false }].map(n => (
-            <div key={n.l} className="shrink-0 px-4 py-2" style={{
-              borderRadius: 10, fontSize: 13, fontWeight: n.a ? 600 : 500, cursor: 'pointer',
-              background: n.a ? 'rgba(99,102,241,0.15)' : 'transparent', color: n.a ? '#818cf8' : '#71717a',
-              transition: 'background 0.2s',
-            }}>{n.l}</div>
-          ))}
-        </div>
-      </div>
-      {/* main */}
-      <div className="flex-1 w-full flex flex-col gap-5 p-4 md:p-6 lg:p-10 max-w-full min-w-0" style={{ overflow: 'hidden', background: '#0a0a14' }}>
-        <div className="flex flex-row justify-between items-center w-full min-w-0 gap-2">
-          <div className="min-w-0 flex-1">
-            <p className="text-white font-extrabold text-lg md:text-2xl leading-tight truncate">Good morning, Admin</p>
-            <p className="text-zinc-500 text-[11px] md:text-sm mt-1 truncate">Mumbai • 24 workers online</p>
-          </div>
-          <div className="hidden sm:flex shrink-0 items-center gap-2 px-3 py-1.5 rounded-full border border-indigo-500/20 bg-indigo-500/10 text-indigo-400 text-xs font-semibold">
-            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
-            Live Status
-          </div>
-        </div>
-        
-        {/* compact grid for stats */}
-        <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4 lg:gap-6 w-full min-w-0">
-          {stats.map((s, i) => (
-            <div key={i} className={`p-4 lg:p-6 rounded-2xl border border-white/5 bg-white/[0.03] ${i === 2 ? 'col-span-2 lg:col-span-1' : ''}`}>
-              <p className="text-zinc-500 text-[10px] font-bold tracking-wider uppercase mb-1 truncate">{s.label}</p>
-              <p className="text-white font-extrabold text-2xl md:text-3xl font-space leading-none truncate">{s.value}</p>
-              <p style={{ color: s.color }} className="text-[11px] font-semibold mt-2 truncate">↑ {s.delta}</p>
-            </div>
-          ))}
-        </div>
+/* ═══════════════════════════════════════════════════
+   ANIMATION
+═══════════════════════════════════════════════════ */
+const EASE = [0.22, 1, 0.36, 1];
 
-        <div className="flex-1 w-full min-w-0 flex flex-col p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 bg-white/[0.02] overflow-hidden">
-          <div className="flex justify-between items-center mb-4">
-            <p className="text-white font-bold text-base">Nearby Workers</p>
-            <p className="text-indigo-400 text-xs font-semibold cursor-pointer hover:underline shrink-0">View all →</p>
-          </div>
-          <div className="flex flex-col gap-2 flex-1 overflow-y-auto pr-1 hide-scrollbar min-w-0">
-            {workers.map((w, i) => (
-              <div key={i} className="flex flex-row items-center justify-between gap-3 p-3 rounded-xl border border-white/5 bg-white/[0.03] min-w-0">
-                <div className="flex items-center gap-3 min-w-0 flex-1">
-                  <div style={{ background: w.hue, color: w.accent }} className="w-9 h-9 rounded-lg flex items-center justify-center text-sm font-black shrink-0">
-                    {w.initials}
-                  </div>
-                  <div className="min-w-0 truncate">
-                    <p className="text-white text-sm font-semibold truncate">{w.name}</p>
-                    <p className="text-zinc-500 text-[11px] mt-0.5 truncate">{w.role} • {w.dist}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 shrink-0">
-                  <p className="hidden sm:block text-amber-400 text-xs font-bold">★ {w.rating}</p>
-                  <div className="px-4 py-1.5 rounded-lg bg-gradient-to-br from-indigo-500 to-indigo-600 text-white text-xs font-bold cursor-pointer hover:opacity-90 transition-opacity shrink-0">
-                    Book
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: '-50px' },
+  transition: { duration: 0.6, ease: EASE, delay },
+});
 
+/* ═══════════════════════════════════════════════════
+   FEATURE DATA
+═══════════════════════════════════════════════════ */
+const FEATURES = [
+  {
+    title: 'Instant Booking',
+    description: 'Book a verified worker in under 60 seconds with one tap.',
+    color: 'var(--accent)',
+    icon: (
+      <path d="M13 2L4.09 12.97a1 1 0 0 0 .77 1.64H11l-1 7.39a1 1 0 0 0 1.77.71L20.91 11.03a1 1 0 0 0-.77-1.64H13l1-7.39a1 1 0 0 0-1-1z" />
+    ),
+  },
+  {
+    title: 'Verified Workers',
+    description: 'Every professional passes background checks and skill verification.',
+    color: 'var(--emerald)',
+    icon: (
+      <>
+        <path d="M9 12l2 2 4-4" />
+        <path d="M21 12c0 5-3.5 8-9 8s-9-3-9-8 3.5-8 9-8 9 3 9 8z" />
+      </>
+    ),
+  },
+  {
+    title: 'Hyperlocal First',
+    description: 'Workers sorted by real-time proximity, availability, and rating.',
+    color: 'var(--sky)',
+    icon: (
+      <>
+        <path d="M12 22s-8-7-8-13a8 8 0 0 1 16 0c0 6-8 13-8 13z" />
+        <circle cx="12" cy="9" r="3" />
+      </>
+    ),
+  },
+];
+
+/* ═══════════════════════════════════════════════════
+   APP PREVIEW SECTION
+═══════════════════════════════════════════════════ */
 export default function AppPreviewSection() {
   return (
-    <section id="app-preview" className="relative overflow-hidden py-20 px-4 sm:px-6 lg:px-8 w-full max-w-[100vw]" style={{ background: 'linear-gradient(180deg, #000, #040408)' }}>
-      <div style={{ position: 'absolute', top: '-10%', left: '20%', width: 600, height: 400, background: 'radial-gradient(ellipse, rgba(99,102,241,0.03), transparent 70%)', pointerEvents: 'none', filter: 'blur(60px)' }} />
+    <section id="app-preview" className="app-preview-section">
 
-      <div className="max-w-7xl mx-auto text-center mb-16 px-2 w-full">
-        <motion.span initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="pill" style={{ display: 'inline-flex', marginBottom: 20 }}>
-          🚀 The Full Platform
-        </motion.span>
-        <motion.h2 initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} viewport={{ once: true }}
-          style={{ fontFamily: "'Space Grotesk',sans-serif", fontSize: 'clamp(2rem,4vw,4rem)', fontWeight: 900, lineHeight: 1.05, letterSpacing: '-0.04em', color: '#f4f4f5', marginBottom: 20 }}>
-          The Platform{' '}
-          <span style={{ background: 'linear-gradient(135deg,#818cf8,#a78bfa)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>
-            That Delivers.
-          </span>
-        </motion.h2>
-        <motion.p initial={{ opacity: 0 }} whileInView={{ opacity: 1 }} transition={{ delay: 0.2 }} viewport={{ once: true }}
-          style={{ color: '#71717a', fontSize: '1.125rem', maxWidth: 600, margin: '0 auto', lineHeight: 1.7 }}>
-          A real-time, hyperlocal worker marketplace — beautifully designed and blindingly fast.
-        </motion.p>
+      {/* Decorative background glow */}
+      <div className="app-preview-glow" aria-hidden />
+
+      <div className="section-container">
+
+        {/* ════════════════════════════════════
+            HEADER
+        ════════════════════════════════════ */}
+        <header className="app-preview-header">
+          <motion.span {...fadeUp(0)} className="pill">
+            🚀 The Full Platform
+          </motion.span>
+
+          <motion.h2 {...fadeUp(0.1)} className="app-preview-heading">
+            The Platform{' '}
+            <span className="text-gradient">That Delivers.</span>
+          </motion.h2>
+
+          <motion.p {...fadeUp(0.2)} className="app-preview-subhead">
+            A real-time, hyperlocal worker marketplace —
+            beautifully designed and blindingly fast.
+          </motion.p>
+        </header>
+
+        {/* ════════════════════════════════════
+            BANNER
+        ════════════════════════════════════ */}
+        <motion.div
+          {...fadeUp(0.25)}
+          initial={{ opacity: 0, y: 40 }}
+          className="banner banner-group app-preview-banner"
+        >
+          <img
+            src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=2070&auto=format&fit=crop"
+            alt="Professional worker arriving at client site"
+            className="banner-img"
+            loading="lazy"
+          />
+
+          <div className="banner-gradient" aria-hidden />
+          <div className="banner-hover-overlay" aria-hidden />
+
+          <div className="overlay-centered">
+            <div className="overlay-content">
+              <motion.div
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.6, delay: 0.3, ease: EASE }}
+                className="app-preview-status"
+              >
+                <span className="app-preview-status-dot" aria-hidden />
+                Real-time Matching
+              </motion.div>
+
+              <motion.h3
+                initial={{ opacity: 0, y: 24 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: 0.35, ease: EASE }}
+                className="app-preview-banner-heading"
+              >
+                Verified Professionals,{' '}
+                <span style={{ color: 'var(--accent)' }}>Instantly.</span>
+              </motion.h3>
+
+              <motion.p
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.7, delay: 0.4, ease: EASE }}
+                className="app-preview-banner-body"
+              >
+                Every worker on Ezra is thoroughly vetted, highly skilled,
+                and ready to deliver top-tier service at your doorstep.
+              </motion.p>
+            </div>
+          </div>
+        </motion.div>
+
+        {/* ════════════════════════════════════
+            FEATURE CARDS
+        ════════════════════════════════════ */}
+        <ul className="app-preview-cards" role="list">
+          {FEATURES.map((feature, i) => (
+            <motion.li
+              key={feature.title}
+              {...fadeUp(0.1 + i * 0.1)}
+              className="app-preview-card"
+            >
+              <div
+                className="app-preview-card-icon"
+                style={{
+                  color: feature.color,
+                  backgroundColor: `color-mix(in srgb, ${feature.color} 12%, transparent)`,
+                  borderColor: `color-mix(in srgb, ${feature.color} 30%, transparent)`,
+                }}
+                aria-hidden
+              >
+                <svg
+                  width="22" height="22"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                >
+                  {feature.icon}
+                </svg>
+              </div>
+
+              <h3 className="app-preview-card-heading">{feature.title}</h3>
+              <p className="app-preview-card-body">{feature.description}</p>
+            </motion.li>
+          ))}
+        </ul>
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.7, delay: 0.3 }}
-        className="mx-auto w-full max-w-[1100px] mb-20"
-        style={{ borderRadius: 24, padding: 'clamp(4px, 1vw, 8px)', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
-      >
-        <Dashboard />
-      </motion.div>
+      {/* ═══════════════════════════════════════
+          STYLES
+      ═══════════════════════════════════════ */}
+      <style>{`
+        /* ── Section ── */
+        .app-preview-section {
+          position: relative;
+          padding: var(--section-py) 0;
+          background: linear-gradient(180deg, var(--bg) 0%, #040408 100%);
+          overflow: hidden;
+        }
 
-      {/* feature cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 max-w-[1100px] mx-auto w-full">
-        {[
-          { h: 'Instant Booking', p: 'Book a worker in under 60 seconds.', c: '#818cf8' },
-          { h: 'Verified Workers', p: 'Every worker passes background checks.', c: '#34d399' },
-          { h: 'Hyperlocal First', p: 'Sorted by real-time proximity.', c: '#38bdf8' },
-        ].map((f, i) => (
-          <motion.div key={i}
-            initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.1 }} viewport={{ once: true }}
-            whileHover={{ y: -4, borderColor: 'rgba(129,140,248,0.2)' }}
-            style={{
-              background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: 20, padding: '32px 28px', transition: 'all .2s ease',
-            }}
-          >
-            <div style={{ width: 12, height: 12, borderRadius: '50%', background: f.c, marginBottom: 20, boxShadow: `0 0 12px ${f.c}50` }} />
-            <p style={{ color: '#f4f4f5', fontWeight: 700, fontSize: '1.1rem', marginBottom: 8 }}>{f.h}</p>
-            <p style={{ color: '#71717a', fontSize: '.95rem', lineHeight: 1.6 }}>{f.p}</p>
-          </motion.div>
-        ))}
-      </div>
+        /* ── Decorative glow ── */
+        .app-preview-glow {
+          position: absolute;
+          top: -10%;
+          left: 50%;
+          transform: translateX(-50%);
+          width: clamp(400px, 60vw, 800px);
+          height: 400px;
+          background: radial-gradient(
+            ellipse,
+            rgba(99, 102, 241, 0.05) 0%,
+            transparent 70%
+          );
+          filter: blur(60px);
+          pointer-events: none;
+          z-index: 0;
+        }
+
+        /* ── Header ── */
+        .app-preview-header {
+          position: relative;
+          z-index: 1;
+          text-align: center;
+          margin: 0 auto var(--block-gap);
+          max-width: 800px;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: var(--space-5);
+        }
+        .app-preview-heading {
+          font-family: var(--font-space), 'Space Grotesk', sans-serif;
+          font-size: var(--text-6xl);
+          font-weight: 900;
+          line-height: 1.05;
+          letter-spacing: -0.04em;
+          color: var(--text-1);
+          margin: 0;
+          max-width: 720px;
+        }
+        .app-preview-subhead {
+          font-family: var(--font-inter), 'Inter', sans-serif;
+          color: var(--text-2);
+          font-size: var(--text-xl);
+          line-height: 1.7;
+          margin: 0;
+          max-width: 600px;
+        }
+
+        /* ── Banner overrides ── */
+        .app-preview-banner {
+          position: relative;
+          z-index: 1;
+          margin-bottom: var(--block-gap);
+        }
+        .app-preview-banner-heading {
+          font-family: var(--font-space), 'Space Grotesk', sans-serif;
+          font-size: clamp(1.75rem, 4.5vw, 4rem);
+          font-weight: 900;
+          line-height: 1.05;
+          letter-spacing: -0.04em;
+          color: #fff;
+          margin: 0;
+        }
+        .app-preview-banner-body {
+          font-family: var(--font-inter), 'Inter', sans-serif;
+          font-size: clamp(1rem, 1.8vw, 1.2rem);
+          line-height: 1.7;
+          color: rgba(244, 244, 245, 0.82);
+          margin: 0;
+          max-width: 620px;
+          font-weight: 500;
+        }
+
+        /* ── Status pill (live indicator) ── */
+        .app-preview-status {
+          display: inline-flex;
+          align-items: center;
+          gap: 10px;
+          padding: 8px 18px;
+          border-radius: var(--r-full);
+          border: 1px solid rgba(99, 102, 241, 0.35);
+          background: rgba(99, 102, 241, 0.18);
+          backdrop-filter: blur(8px);
+          -webkit-backdrop-filter: blur(8px);
+          color: var(--accent-hi);
+          font-size: 0.75rem;
+          font-weight: 700;
+          text-transform: uppercase;
+          letter-spacing: 0.12em;
+        }
+        .app-preview-status-dot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: var(--emerald);
+          box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.5);
+          animation: app-preview-pulse 2s ease-in-out infinite;
+        }
+        @keyframes app-preview-pulse {
+          0%   { box-shadow: 0 0 0 0   rgba(52, 211, 153, 0.5); }
+          70%  { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0);   }
+          100% { box-shadow: 0 0 0 0   rgba(52, 211, 153, 0);   }
+        }
+
+        /* ── Cards grid ── */
+        .app-preview-cards {
+          position: relative;
+          z-index: 1;
+          list-style: none;
+          margin: 0;
+          padding: 0;
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: var(--grid-gap-lg);
+        }
+        @media (max-width: 900px) {
+          .app-preview-cards { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+          .app-preview-cards {
+            grid-template-columns: 1fr;
+            gap: var(--grid-gap);
+          }
+        }
+
+        /* ── Card ── */
+        .app-preview-card {
+          background: rgba(255, 255, 255, 0.02);
+          border: 1px solid var(--border);
+          border-radius: var(--r-xl);
+          padding: var(--space-7) var(--space-6);
+          transition: transform .3s var(--ease-smooth),
+                      background .3s ease,
+                      border-color .3s ease;
+          display: flex;
+          flex-direction: column;
+          gap: var(--space-3);
+        }
+        .app-preview-card:hover {
+          transform: translateY(-4px);
+          background: rgba(255, 255, 255, 0.04);
+          border-color: rgba(129, 140, 248, 0.25);
+        }
+        .app-preview-card-icon {
+          width: 48px;
+          height: 48px;
+          border-radius: var(--r-md);
+          border: 1px solid transparent;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          margin-bottom: var(--space-2);
+          transition: transform .3s var(--ease-smooth);
+        }
+        .app-preview-card:hover .app-preview-card-icon {
+          transform: scale(1.08) rotate(-4deg);
+        }
+        .app-preview-card-heading {
+          color: var(--text-1);
+          font-family: var(--font-space), 'Space Grotesk', sans-serif;
+          font-weight: 700;
+          font-size: 1.25rem;
+          letter-spacing: -0.02em;
+          margin: 0;
+        }
+        .app-preview-card-body {
+          color: var(--text-2);
+          font-size: 0.9375rem;
+          line-height: 1.65;
+          margin: 0;
+        }
+
+        /* Reduced motion */
+        @media (prefers-reduced-motion: reduce) {
+          .app-preview-status-dot,
+          .app-preview-card:hover,
+          .app-preview-card:hover .app-preview-card-icon {
+            animation: none !important;
+            transform: none !important;
+          }
+        }
+      `}</style>
     </section>
   );
 }

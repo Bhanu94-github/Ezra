@@ -1,92 +1,201 @@
 'use client';
+
 import dynamic from 'next/dynamic';
-import { useEffect, useRef } from 'react';
+import { useEffect } from 'react';
 
-const Navbar = dynamic(() => import('@/components/Navbar'), { ssr: false });
-const HeroSection = dynamic(() => import('@/components/HeroSection'), { ssr: false });
-const StatsSection = dynamic(() => import('@/components/StatsSection'), { ssr: false });
-const AppPreviewSection = dynamic(() => import('@/components/AppPreviewSection'), { ssr: false });
-const HowItWorks = dynamic(() => import('@/components/HowItWorks'), { ssr: false });
-const ServicesSection = dynamic(() => import('@/components/ServicesSection'), { ssr: false });
-const GlobeSection = dynamic(() => import('@/components/GlobeSection'), { ssr: false });
-const ForEveryoneSection = dynamic(() => import('@/components/ForEveryoneSection'), { ssr: false });
-const TestimonialsSection = dynamic(() => import('@/components/TestimonialsSection'), { ssr: false });
-const GetStartedSection = dynamic(() => import('@/components/GetStartedSection'), { ssr: false });
-const Footer = dynamic(() => import('@/components/Footer'), { ssr: false });
+/* ═══════════════════════════════════════════════════
+   DYNAMIC IMPORTS
+   ─────────────────────────────────────────────────
+   Strategy:
+   • Above-the-fold (Navbar, Hero)        → SSR enabled for SEO + LCP
+   • Below-the-fold heavy components      → SSR enabled, no loading flash
+   • Three.js / Globe (massive bundle)    → SSR disabled, lazy loaded
+═══════════════════════════════════════════════════ */
 
+// ── Above-the-fold: load eagerly with SSR ──
+const Navbar = dynamic(() => import('@/components/Navbar'));
+const HeroSection = dynamic(() => import('@/components/HeroSection'));
+
+// ── Below-the-fold: SSR enabled for SEO ──
+const StatsSection = dynamic(() => import('@/components/StatsSection'));
+const AppPreviewSection = dynamic(() => import('@/components/AppPreviewSection'));
+const HowItWorks = dynamic(() => import('@/components/HowItWorks'));
+const ServicesSection = dynamic(() => import('@/components/ServicesSection'));
+const ForEveryoneSection = dynamic(() => import('@/components/ForEveryoneSection'));
+const TestimonialsSection = dynamic(() => import('@/components/TestimonialsSection'));
+const GetStartedSection = dynamic(() => import('@/components/GetStartedSection'));
+const Footer = dynamic(() => import('@/components/Footer'));
+
+// ── Heavy 3D component: client-only ──
+const GlobeSection = dynamic(() => import('@/components/GlobeSection'), {
+  ssr: false,
+  loading: () => <div style={{ minHeight: 600 }} aria-hidden />,
+});
+
+/* ═══════════════════════════════════════════════════
+   HOME PAGE
+═══════════════════════════════════════════════════ */
 export default function Home() {
-  const cursorPos = useRef({ x: 0, y: 0 });
-  const ringPos = useRef({ x: 0, y: 0 });
-
   useEffect(() => {
-    const dot = document.getElementById('cursor-dot');
-    const ring = document.getElementById('cursor-ring');
-    let animFrame;
+    /* ── Respect reduced-motion preference ── */
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
 
-    const moveCursor = (e) => {
-      cursorPos.current = { x: e.clientX, y: e.clientY };
-      if (dot) { dot.style.left = e.clientX + 'px'; dot.style.top = e.clientY + 'px'; }
-    };
+    /* ── Detect touch device → skip cursor entirely ── */
+    const isTouchDevice =
+      'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
-    const animateRing = () => {
-      ringPos.current.x += (cursorPos.current.x - ringPos.current.x) * 0.12;
-      ringPos.current.y += (cursorPos.current.y - ringPos.current.y) * 0.12;
-      if (ring) { ring.style.left = ringPos.current.x + 'px'; ring.style.top = ringPos.current.y + 'px'; }
-      animFrame = requestAnimationFrame(animateRing);
-    };
-
-    document.addEventListener('mousemove', moveCursor);
-    animFrame = requestAnimationFrame(animateRing);
-
-    const handleEnter = () => {
-      if (ring) { ring.style.width = '56px'; ring.style.height = '56px'; ring.style.background = 'rgba(99,102,241,0.06)'; ring.style.borderColor = 'rgba(129,140,248,0.5)'; }
-    };
-    const handleLeave = () => {
-      if (ring) { ring.style.width = '36px'; ring.style.height = '36px'; ring.style.background = 'transparent'; ring.style.borderColor = 'rgba(129,140,248,0.35)'; }
-    };
-    const updateBtns = () => {
-      const btns = document.querySelectorAll('button, a');
-      btns.forEach(b => { b.removeEventListener('mouseenter', handleEnter); b.removeEventListener('mouseleave', handleLeave); b.addEventListener('mouseenter', handleEnter); b.addEventListener('mouseleave', handleLeave); });
-    };
-    updateBtns();
-    const mutObs = new MutationObserver(updateBtns);
-    mutObs.observe(document.body, { childList: true, subtree: true });
-
+    /* ════════════════════════════════════════
+       SCROLL PROGRESS + BACK-TO-TOP
+       Throttled with rAF for 60fps performance
+    ════════════════════════════════════════ */
     const progressBar = document.getElementById('scroll-progress');
-    const updateProgress = () => {
+    const backTop = document.getElementById('back-to-top');
+
+    let scrollTicking = false;
+    const updateScroll = () => {
       const scrollTop = window.scrollY;
       const docHeight = document.documentElement.scrollHeight - window.innerHeight;
       const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      if (progressBar) progressBar.style.width = pct + '%';
-      const backTop = document.getElementById('back-to-top');
-      if (backTop) { backTop.classList.toggle('visible', scrollTop > 500); }
-    };
-    window.addEventListener('scroll', updateProgress);
 
+      if (progressBar) progressBar.style.width = `${pct}%`;
+      if (backTop) backTop.classList.toggle('visible', scrollTop > 500);
+
+      scrollTicking = false;
+    };
+
+    const onScroll = () => {
+      if (!scrollTicking) {
+        requestAnimationFrame(updateScroll);
+        scrollTicking = true;
+      }
+    };
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    updateScroll();
+
+    /* ════════════════════════════════════════
+       CUSTOM CURSOR
+       Skip entirely on touch devices or reduced-motion
+    ════════════════════════════════════════ */
+    let cleanupCursor = () => { };
+
+    if (!isTouchDevice && !prefersReducedMotion) {
+      const dot = document.getElementById('cursor-dot');
+      const ring = document.getElementById('cursor-ring');
+
+      const cursorPos = { x: 0, y: 0 };
+      const ringPos = { x: 0, y: 0 };
+      let cursorFrame;
+
+      const moveCursor = (e) => {
+        cursorPos.x = e.clientX;
+        cursorPos.y = e.clientY;
+        if (dot) {
+          dot.style.left = `${e.clientX}px`;
+          dot.style.top = `${e.clientY}px`;
+        }
+      };
+
+      const animateRing = () => {
+        ringPos.x += (cursorPos.x - ringPos.x) * 0.12;
+        ringPos.y += (cursorPos.y - ringPos.y) * 0.12;
+        if (ring) {
+          ring.style.left = `${ringPos.x}px`;
+          ring.style.top = `${ringPos.y}px`;
+        }
+        cursorFrame = requestAnimationFrame(animateRing);
+      };
+
+      /* ── Hover states via EVENT DELEGATION ──
+         Single listener on document, no MutationObserver.
+         Massive performance improvement vs old approach. */
+      const handlePointerOver = (e) => {
+        const target = e.target.closest('button, a, [role="button"]');
+        if (target && ring) {
+          ring.style.width = '56px';
+          ring.style.height = '56px';
+          ring.style.background = 'rgba(99,102,241,0.06)';
+          ring.style.borderColor = 'rgba(129,140,248,0.5)';
+        }
+      };
+
+      const handlePointerOut = (e) => {
+        const target = e.target.closest('button, a, [role="button"]');
+        if (target && ring) {
+          ring.style.width = '36px';
+          ring.style.height = '36px';
+          ring.style.background = 'transparent';
+          ring.style.borderColor = 'rgba(129,140,248,0.35)';
+        }
+      };
+
+      document.addEventListener('mousemove', moveCursor, { passive: true });
+      document.addEventListener('pointerover', handlePointerOver, { passive: true });
+      document.addEventListener('pointerout', handlePointerOut, { passive: true });
+      cursorFrame = requestAnimationFrame(animateRing);
+
+      cleanupCursor = () => {
+        document.removeEventListener('mousemove', moveCursor);
+        document.removeEventListener('pointerover', handlePointerOver);
+        document.removeEventListener('pointerout', handlePointerOut);
+        cancelAnimationFrame(cursorFrame);
+      };
+    } else {
+      /* Hide cursor elements on touch / reduced-motion */
+      const dot = document.getElementById('cursor-dot');
+      const ring = document.getElementById('cursor-ring');
+      if (dot) dot.style.display = 'none';
+      if (ring) ring.style.display = 'none';
+      document.body.style.cursor = 'auto';
+    }
+
+    /* ════════════════════════════════════════
+       CLEANUP
+    ════════════════════════════════════════ */
     return () => {
-      document.removeEventListener('mousemove', moveCursor);
-      window.removeEventListener('scroll', updateProgress);
-      cancelAnimationFrame(animFrame);
-      mutObs.disconnect();
+      window.removeEventListener('scroll', onScroll);
+      cleanupCursor();
     };
   }, []);
 
+  /* ── Smooth scroll handler for back-to-top ── */
+  const scrollToTop = () => {
+    const prefersReducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches;
+
+    window.scrollTo({
+      top: 0,
+      behavior: prefersReducedMotion ? 'auto' : 'smooth',
+    });
+  };
+
   return (
     <>
-      {/* Scroll Progress */}
-      <div id="scroll-progress" style={{
-        position:'fixed', top:0, left:0, height:'2px',
-        background:'linear-gradient(90deg, #6366f1, #818cf8, #a78bfa)',
-        zIndex:99997, width:'0%',
-      }} />
+      {/* ════════════════════════════════════════
+          SKIP TO CONTENT — Accessibility
+      ════════════════════════════════════════ */}
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
 
-      {/* Custom Cursor */}
-      <div id="cursor-dot" style={{ position:'fixed', width:6, height:6, background:'#818cf8', borderRadius:'50%', pointerEvents:'none', zIndex:99999, transform:'translate(-50%,-50%)', transition:'width .15s, height .15s' }} />
-      <div id="cursor-ring" style={{ position:'fixed', width:36, height:36, border:'1.5px solid rgba(129,140,248,0.35)', borderRadius:'50%', pointerEvents:'none', zIndex:99998, transform:'translate(-50%,-50%)', transition:'width .25s, height .25s, background .25s, border-color .25s' }} />
+      {/* ════════════════════════════════════════
+          GLOBAL UI ELEMENTS
+          All styling lives in globals.css —
+          no inline styles needed.
+      ════════════════════════════════════════ */}
+      <div id="scroll-progress" aria-hidden />
+      <div id="cursor-dot" aria-hidden />
+      <div id="cursor-ring" aria-hidden />
 
+      {/* ════════════════════════════════════════
+          PAGE STRUCTURE
+      ════════════════════════════════════════ */}
       <Navbar />
 
-      <main>
+      <main id="main-content">
         <HeroSection />
         <StatsSection />
         <AppPreviewSection />
@@ -100,27 +209,56 @@ export default function Home() {
 
       <Footer />
 
-      {/* Back to Top */}
-      <button id="back-to-top"
-        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+      {/* ════════════════════════════════════════
+          BACK TO TOP — styled via globals.css
+      ════════════════════════════════════════ */}
+      <button
+        id="back-to-top"
+        type="button"
+        onClick={scrollToTop}
         aria-label="Back to top"
-        style={{
-          position:'fixed', bottom:28, right:28, width:44, height:44,
-          background:'#6366f1', borderRadius:'50%', border:'none',
-          display:'flex', alignItems:'center', justifyContent:'center',
-          cursor:'pointer', zIndex:1000, opacity:0, transform:'scale(0)',
-          transition:'opacity .3s, transform .3s cubic-bezier(0.34,1.56,0.64,1)',
-          boxShadow:'0 0 24px rgba(99,102,241,0.3)',
-        }}
       >
-        <svg width="18" height="18" fill="none" stroke="white" strokeWidth="2.5" viewBox="0 0 24 24">
-          <path d="M18 15l-6-6-6 6" strokeLinecap="round" strokeLinejoin="round" />
+        <svg
+          width="18"
+          height="18"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2.5"
+          viewBox="0 0 24 24"
+          aria-hidden
+        >
+          <path
+            d="M18 15l-6-6-6 6"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
         </svg>
       </button>
 
+      {/* ════════════════════════════════════════
+          SKIP-LINK STYLES (only thing not in globals)
+      ════════════════════════════════════════ */}
       <style>{`
-        #back-to-top.visible { opacity:1 !important; transform:scale(1) !important; }
-        #back-to-top:hover { background:#818cf8 !important; box-shadow:0 0 32px rgba(99,102,241,0.5) !important; }
+        .skip-link {
+          position: absolute;
+          top: -100px;
+          left: 16px;
+          padding: 12px 20px;
+          background: var(--accent-deep);
+          color: #fff;
+          font-weight: 600;
+          border-radius: var(--r-md);
+          z-index: 999999;
+          transition: top 0.2s ease;
+        }
+        .skip-link:focus {
+          top: 16px;
+          outline: 2px solid var(--accent);
+          outline-offset: 2px;
+        }
+
+        /* Back-to-top icon color (inherits from button) */
+        #back-to-top { color: #fff; }
       `}</style>
     </>
   );
