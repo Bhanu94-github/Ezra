@@ -209,7 +209,7 @@ export default function ServicesSection() {
           color: var(--text-1);
           margin: 0;
           max-width: 760px;
-          flex: 1 1 480px;
+          flex: 1 1 auto;
         }
 
         /* "View all" link */
@@ -305,7 +305,7 @@ export default function ServicesSection() {
         }
 
         /* ── Responsive ── */
-        @media (max-width: 768px) {
+        @media (max-width: 900px) {
           .services-header-row {
             flex-direction: column;
             align-items: flex-start;
@@ -314,6 +314,9 @@ export default function ServicesSection() {
           .services-view-all {
             padding: 0;
           }
+        }
+
+        @media (max-width: 768px) {
           .services-cta {
             padding: var(--space-7) var(--space-6);
             flex-direction: column;
